@@ -2,6 +2,21 @@ use reqwest::header::HeaderMap;
 use dotenv::dotenv;
 // use std::collections::HashMap;
 use std::env;
+use serde::Serialize;
+use serde::Deserialize;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Outbound {
+    #[serde(rename = "departureDate")]
+    departure_date: String,
+    price: i32,
+    currency: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Root {
+    outbound: Vec<Outbound>,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,10 +36,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
+    let resp_json = resp.json::<Root>().await?;
+
+    println!("Response JSON: {:#?}", resp_json);
+
     // let resp = reqwest::get("https://httpbin.org/ip")
     //     .await?
     //     .json::<HashMap<String, String>>()
     //     .await?;
-    println!("{resp:#?}");
+    // println!("{resp:#?}");
     Ok(())
 }
